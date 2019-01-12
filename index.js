@@ -3,10 +3,14 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const passport = require('passport');
 
+const routes = require('./routes');
 const { PORT, CLIENT_ORIGIN } = require('./config');
 const { dbConnect } = require('./db-mongoose');
-// const {dbConnect} = require('./db-knex');
+const { error404, error500 } = require('./error-middleware');
+const localStrategy = require('./auth/localStrategy');
+const jwtStrategy = require('./auth/jwtStrategy');
 
 const app = express();
 
@@ -22,6 +26,15 @@ app.use(
   })
 );
 
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+
+app.use(express.json());
+
+app.use('/api', routes);
+app.use(error404);
+app.use(error500);
+
 /* eslint-disable no-console */
 function runServer(port = PORT) {
   const server = app
@@ -33,7 +46,7 @@ function runServer(port = PORT) {
       console.error(err);
     });
 }
-/* eslint-enable no-console */
+/* eslint-disable no-console */
 
 if (require.main === module) {
   dbConnect();

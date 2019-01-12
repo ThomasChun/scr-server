@@ -1,7 +1,9 @@
 'use strict';
 
 const mongoose = require('mongoose');
+
 const { MONGODB_OPTIONS } = require('./config');
+
 mongoose.Promise = global.Promise;
 
 const { DATABASE_URL } = require('./config');
@@ -9,6 +11,7 @@ const { DATABASE_URL } = require('./config');
 /* eslint-disable no-console */
 function dbConnect(url = DATABASE_URL) {
   return mongoose.connect(url, MONGODB_OPTIONS)
+    .then(mongoose.set('useCreateIndex', true))
     .catch(err => {
       console.error('Mongoose failed to connect');
       console.error(err);
