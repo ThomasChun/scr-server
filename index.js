@@ -12,6 +12,9 @@ const { error404, error500 } = require('./error-middleware');
 const localStrategy = require('./auth/localStrategy');
 const jwtStrategy = require('./auth/jwtStrategy');
 
+const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
+
 const app = express();
 
 app.use(
@@ -32,6 +35,8 @@ passport.use(jwtStrategy);
 app.use(express.json());
 
 app.use('/api', routes);
+app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 app.use(error404);
 app.use(error500);
 
