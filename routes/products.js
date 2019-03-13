@@ -2,6 +2,7 @@
 
 const express = require('express');
 const passport = require('passport');
+const mongoose = require('mongoose');
 
 const Products = require('../models/products');
 const router = express.Router();
@@ -73,6 +74,23 @@ router.post('/', jwtAuth, (req, res, next) => {
       res.location(`${req.baseUrl}/${result.id}`).status(201).json(result);
     })
     .catch(err => next(err));
+});
+
+router.delete('/:id', (req, res, next) => {
+  const {id} = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    err.status = 400;
+    return next(err);
+  }
+
+  Products.findOneAndRemove({ _id: id })
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch(err => {
+      next(err);
+    });
 });
 
 module.exports = router; 
