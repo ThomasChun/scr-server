@@ -21,7 +21,7 @@ router.get('/', jwtAuth, (req, res, next) => {
 router.post('/', jwtAuth, (req, res, next) => {
   let { name, sport, year, releaseDate, brand, productImageUrl, breakdown, description } = req.body;
   const newProduct = { name, sport, year, releaseDate, brand, productImageUrl, breakdown, description };
-
+  
   if (!name) {
     const err = new Error('Missing `name` in request body');
     err.status = 400;

@@ -2,6 +2,7 @@
 
 const express = require('express');
 const passport = require('passport');
+const mongoose = require('mongoose');
 
 const Review = require('../models/review');
 const router = express.Router();
@@ -18,8 +19,10 @@ router.get('/', jwtAuth, (req, res, next) => {
 });
 
 router.post('/', jwtAuth, (req, res, next) => {
+  let approved = false;
+  let liked = [];
   let { username, productName, overallRating, valueRating, designRating, excitementRating, checklistRating, recommendProduct, youtubeUrl, userBreakImages, hitList, userReview } = req.body;
-  const newReview = { username, productName, overallRating, valueRating, designRating, excitementRating, checklistRating, recommendProduct, youtubeUrl, userBreakImages, hitList, userReview };
+  const newReview = { approved, liked, username, productName, overallRating, valueRating, designRating, excitementRating, checklistRating, recommendProduct, youtubeUrl, userBreakImages, hitList, userReview };
 
   if (!username) {
     const err = new Error('Missing `username` in request body');
@@ -92,6 +95,53 @@ router.post('/', jwtAuth, (req, res, next) => {
       res.location(`${req.baseUrl}/${result.id}`).status(201).json(result);
     })
     .catch(err => next(err));
+});
+
+router.put('/:id', jwtAuth,(req, res, next) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    err.status = 400;
+    return next(err);
+  }
+
+  const toUpdate = {};
+  const updateableFields = ['approved', 'liked'];
+
+  updateableFields.forEach = (field => {
+    if (field in req.body) {
+      toUpdate[field] = req.body[field];
+    }
+  });
+
+  Review.findOneAndUpdate({_id: id}, toUpdate)
+    .then(result => {
+      if (result) {
+        res.json(result);
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      next(err);
+    });
+});
+
+router.delete('/:id', (req, res, next) => {
+  const {id} = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    err.status = 400;
+    return next(err);
+  }
+
+  Review.findOneAndRemove({ _id: id })
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch(err => {
+      next(err);
+    });
 });
 
 module.exports = router;

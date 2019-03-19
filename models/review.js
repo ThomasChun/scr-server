@@ -16,6 +16,8 @@ const reviewSchema = new mongoose.Schema(
     userBreakImages: { type: Array },
     hitList: { type: String, required: true },
     userReview: { type: String, required: true },
+    approved: {type: Boolean, required: true },
+    liked: { type: Array, required: true },
   }
 );
 
